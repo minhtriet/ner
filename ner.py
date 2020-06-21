@@ -49,7 +49,7 @@ PAD_TOKEN = 0
 PAD_MASK_TOKEN = 0
 PAD_TOKEN_LABEL_ID = nn.CrossEntropyLoss().ignore_index
 PAD_TOKEN_SEGMENT_ID = 0
-ITERATION = 1000
+ITERATION = 1
 
 MODEL_NAME = "xlm-roberta-base"
 
