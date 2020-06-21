@@ -158,3 +158,12 @@ for _ in range(ITERATION):
         loss, prediction_scores  = model(**data)
         loss.backward()
         optimizer.step()
+
+eval_dataset = NERDataset('test.ft')
+eval_loader = DataLoader(eval_dataset, collate_fn=default_collator.collate_batch)
+model.eval()
+with torch.no_grad():
+    for step, data in enumerate(tqdm(eval_loader)):
+        loss, logits = model(**data)
+        logits.detach()
+        print(logits)
