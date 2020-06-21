@@ -11,8 +11,7 @@ from torch.utils.data import DataLoader, Dataset, RandomSampler
 from torch import nn
 import sys
 
-from tqdm import tqdm
-
+from tqdm.autonotebook import tqdm
 
 @dataclass
 class InputExample:
