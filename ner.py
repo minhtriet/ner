@@ -3,6 +3,7 @@ import logging
 from typing import List, Optional
 from transformers import PreTrainedTokenizer, AutoTokenizer, AutoModelForTokenClassification, DefaultDataCollator
 from dataclasses import dataclass
+from transformers.optimization import AdamW
 
 import torch
 from os import path
@@ -144,12 +145,16 @@ train_sampler = RandomSampler(train_dataset)
 default_collator = DefaultDataCollator()
 train_loader = DataLoader(train_dataset, sampler=train_sampler, batch_size=32, collate_fn=default_collator.collate_batch)
 model = AutoModelForTokenClassification.from_pretrained(MODEL_NAME)
+
+# optimizer
+optimizer = AdamW(model.parameters())
+
 # load from_pretrained, finetune
 model.train()
 for _ in range(ITERATION):
     for step, data in enumerate(tqdm(train_loader)):
         model.zero_grad()
-        # labels = data.pop('label_ids')
         #loss, prediction_scores, seq_relationship_score, hidden_states, attentions = model(**data)
         loss, prediction_scores  = model(**data)
         loss.backward()
+        optimizer.step()
