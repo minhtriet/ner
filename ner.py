@@ -1,7 +1,7 @@
 import logging
 
-from typing import List, Optional
-from transformers import PreTrainedTokenizer, AutoTokenizer, AutoModelForTokenClassification, DefaultDataCollator
+from typing import List, Optional, Dict
+from transformers import PreTrainedTokenizer, AutoTokenizer, AutoModelForTokenClassification, DefaultDataCollator, AutoConfig
 from dataclasses import dataclass
 from transformers.optimization import AdamW
 
@@ -124,13 +124,19 @@ def convert_examples_to_features(examples: List[InputExample], label_list: List[
                          label_ids=label_ids))
     return features
 
+with open("labels.txt") as f:
+    labels_list = f.read().splitlines()
 
+label_map: Dict[int, str] = {i: label for i, label in enumerate(labels_list)}
+
+config = AutoConfig.from_pretrained(
+    pretrained_model_name_or_path=MODEL_NAME,
+    num_labels=len(labels_list),
+)
 for filename in ['train.txt', 'dev.txt', 'test.txt']:
     result_filename, _ = path.splitext(filename)
     if not path.exists(f"{result_filename}.ft"):
         examples = read_examples_from_file(filename)
-        with open("labels.txt") as f:
-            labels_list = f.read().splitlines()
 
         tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         features = convert_examples_to_features(examples, tokenizer=tokenizer, label_list=labels_list,
@@ -143,7 +149,9 @@ logger.info("Done create dataset")
 train_sampler = RandomSampler(train_dataset)
 default_collator = DefaultDataCollator()
 train_loader = DataLoader(train_dataset, sampler=train_sampler, batch_size=32, collate_fn=default_collator.collate_batch)
-model = AutoModelForTokenClassification.from_pretrained(MODEL_NAME)
+
+
+model = AutoModelForTokenClassification.from_pretrained(MODEL_NAME, config=config)
 
 # optimizer
 optimizer = AdamW(model.parameters())
