@@ -165,6 +165,7 @@ for _ in range(ITERATION):
         loss, prediction_scores  = model(**data)
         loss.backward()
         optimizer.step()
+torch.save(model.state_dict(), 'model.ft')
 
 eval_dataset = NERDataset('test.ft')
 eval_loader = DataLoader(eval_dataset, collate_fn=default_collator.collate_batch)
